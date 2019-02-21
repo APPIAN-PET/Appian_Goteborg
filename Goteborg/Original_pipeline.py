@@ -40,26 +40,41 @@ ref_template = '/data/reckoner_forsklagr/PET/misc/ref_regions/suit_T1_template.m
 ref_labels = '6 ' + ''.join(['%s '%x for x in range(8,29)]) +'33 34'
 ref_name = 'InfCereb'
 IC_cmd += '--quant-label-img %s --quant-label-template %s --quant-label %s --quant-labels-ones-only --quant-method %s --quant-label-name %s '%(ref_atlas, 
-	                                                                                                                        ref_template,
-	                                                                                                                        ref_labels,
-	                                                                                                                        method,
-	                                                                                                                        ref_name)
-
+	                                                                                                                                           ref_template,
+	                                                                                                                                           ref_labels,
+	                                                                                                                                           method,
+	                                                                                                                                           ref_name)
 IC_cmd += '"'
 
 ### RUN PIPELINE
 os.system(IC_cmd)
 
-### WHOLE CEREBELLUM PIPELINE
+## WHOLE CEREBELLUM PIPELINE
 WCB_cmd = launch_cmd
+method = 'suvr'
 ref_atlas = '/data/reckoner_forsklagr/PET/misc/ref_regions/suit_cerebellum_atlas.mnc'
 ref_template = '/data/reckoner_forsklagr/PET/misc/ref_regions/suit_T1_template.mnc'
 ref_labels = ''.join(['%s '%x for x in range(1,35)])
 ref_name = 'WHOLECereb'
 WCB_cmd += '--quant-label-img %s --quant-label-template %s --quant-label %s --quant-labels-ones-only --quant-method %s --quant-label-name %s '%(ref_atlas, 
-	                                                                                                                        ref_template,
-	                                                                                                                        ref_labels,
-	                                                                                                                        method,
-	                                                                                                                        ref_name)
+	                                                                                                                                            ref_template,
+	                                                                                                                                            ref_labels,
+	                                                                                                                                            method,
+	                                                                                                                                            ref_name)
+### RUN PIPELINE
+WCB_cmd += '"'
 os.system(WBC_cmd)
-IC_cmd += '"'
+
+## WHITE MATTER PIPELINE
+
+WM_cmd = launch_cmd
+method = 'suvr'
+ref_labels = '3'
+erosion = '5'
+ref_name = 'ErodedWM'
+WM_cmd += '%s --quant-label %s --quant-labels-ones-only --quant-method %s --quant-label-name %s --quant-label-erosion %s '%(ref_labels,
+	                                                                                                                        method,
+	                                                                                                                        ref_name,
+	                                                                                                                        erosion)
+WM_cmd += '"'
+os.system(WM_cmd)
