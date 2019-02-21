@@ -1,3 +1,3 @@
-# Appian_Goteborg
+# APPIAN Wrappers
 
-SOP: https://docs.google.com/document/d/18CMybm_LYlY8Yr9ptA3FGZbfUssHfCu7-GzHHzOFXWY/edit?ts=5c6ae4ba
+The wrappers contained in this repository are intended to simplify the use of APPIAN within for use in specific contexts where the entire functionality of APPIAN is not needed. 
