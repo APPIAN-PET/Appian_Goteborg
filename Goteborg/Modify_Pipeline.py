@@ -29,6 +29,21 @@ def retrieve_input(message):
     ans = input(message)
     return ans
 
+def yes_no(message):
+    hold = True
+    while hold:
+        response = input(message)
+        if response not in ('y','n','Y','N','Yes','No','yes','no'):
+            raise IOError('Response not recognized')
+        if response in ('Yes','yes','y','Y'):
+            ans = True
+            hold = False
+        else:
+            ans = False
+            hold = False
+
+    return ans
+
 def execute_pipeline(mount_dir, appian, input_dir, output_dir ,atlas,
 	                 atlas_template, atlas_name, pvc_method, fwhm,
 	                pvc_atlas, pvc_template, pvc_name, method,
@@ -39,15 +54,33 @@ def execute_pipeline(mount_dir, appian, input_dir, output_dir ,atlas,
     dir_cmd = '-s %s -t %s '%(input_dir, output_dir)
     output_dir = '/data/reckoner_forsklagr/PET/processed_data/'
     launch_cmd = 'docker run --rm -v %s %s bash -c "python2 /opt/APPIAN/Launcher.py '%(mount_dir,appian)
-    extract_cmd = '--results-label-img %s  --results-label-template %s --results-label-name %s '%(atlas,
+    
+    if atlas_template == None:
+        extract_cmd = '--results-label-img %s --results-label-name %s '%(atlas,
+                                                                        atlas_name)
+    else:
+        extract_cmd = '--results-label-img %s  --results-label-template %s --results-label-name %s '%(atlas,
 	                                                                                       atlas_template,
 	                                                                                       atlas_name)
-    pvc_cmd = '--pvc-method %s --fwhm %s --pvc-label-img %s --pvc-label-template %s --pvc-label-name %s '%(pvc_method,
+    
+    if pvc_template == None:
+        pvc_cmd = '--pvc-method %s --fwhm %s --pvc-label-img %s --pvc-label-name %s '%(pvc_method,
 	                                                                                                   fwhm,
 	                                                                                                   pvc_atlas,
-	                                                                                                   pvc_template,
 	                                                                                                   pvc_name)
-    quant_cmd = '--quant-label-img %s --quant-label-template %s --quant-label %s --quant-labels-ones-only --quant-method %s --quant-label-name %s '%(ref_atlas, 
+    else:
+        pvc_cmd = '--pvc-method %s --fwhm %s --pvc-label-img %s --pvc-label-template %s --pvc-label-name %s '%(pvc_method,
+                                                                                                       fwhm,
+                                                                                                       pvc_atlas,
+                                                                                                       pvc_template,
+                                                                                                       pvc_name)
+    if ref_template == None:
+        quant_cmd = '--quant-label-img %s --quant-label %s --quant-labels-ones-only --quant-method %s --quant-label-name %s '%(ref_atlas, 
+                                                                                                                                               ref_labels,
+                                                                                                                                               method,
+                                                                                                                                               ref_name)
+    else:
+        quant_cmd = '--quant-label-img %s --quant-label-template %s --quant-label %s --quant-labels-ones-only --quant-method %s --quant-label-name %s '%(ref_atlas, 
 	                                                                                                                                           ref_template,
 	                                                                                                                                           ref_labels,
 	                                                                                                                                           method,
@@ -57,17 +90,7 @@ def execute_pipeline(mount_dir, appian, input_dir, output_dir ,atlas,
     print('HERE IS YOUR COMMAND')
     print(cmd)
 
-    hold = True
-    while hold:
-    	response = input('Execute pipeline? y/n  ')
-    	if response not in ('y','n','Y','N','Yes','No','yes','no'):
-    	    raise IOError('Response not recognized')
-    	if response in ('Yes','yes','y','Y'):
-            ans = True
-            hold = False
-    	else:
-            ans = False
-            hold = False
+    ans = yes_no('Execute pipeline? y/n  ')
 
     if ans:
     	os.system(cmd)
@@ -115,8 +138,13 @@ if 'Inputs/Outputs' in selection:
     output_dir = select_directory('Please select your desired output directory')
 
 if 'Extraction Atlas' in selection:
-    atlas = select_file('Please select the atlas to be used for ROI values')
-    atlas_template = select_file('Select the template space (e.g. MNI) of the atlas')
+    own_atlas = yes_no('Are you provided your own native space atlases? y/n ')
+    if not own_atlas:
+        atlas = select_file('Please select the atlas to be used for ROI values')
+        atlas_template = select_file('Select the template space (e.g. MNI) of the atlas')
+    else:
+        atlas = retrieve_input('Please provide string label for atlas ')
+        atlas_template = None
     msg = 'Please supply a label, like "dkt" (non unique labels will overwrite existing files): '
     atlas_name = retrieve_input(msg)
 
@@ -127,10 +155,15 @@ if 'PVC' in selection:
         pvc_method = retrieve_input('Choose a method from these choices: GTM, VC, idSURF ')
         if pvc_method not in ['GTM','VC','idSURF']:
             raise IOError('PVC choice not recognized')
+    own_atlas = yes_no('Are you provided your own native space atlases? y/n ')
+    if not own_atlas:
         pvc_atlas = select_file('Please select atlas to use for PVC')
         pvc_template = select_file('Please select the template space (e.g.) MNI of the atlas')
-        msg = 'Please supply a label, like "GTM" (non unique labels will overwrite existing files): '
-        pvc_name = retrieve_input(msg)
+    else:
+        pvc_atlas = retrieve_input('Please provide string label for atlas ')
+        pvc_template = None
+    msg = 'Please supply a label, like "GTM" (non unique labels will overwrite existing files): '
+    pvc_name = retrieve_input(msg)
 
 if 'Quantification' in selection:
     print('NOTE: This script will only give options for suv and suvr')
@@ -142,9 +175,14 @@ if 'Quantification' in selection:
         method = retrieve_input('Choose a method from these choices: suv, suvr ')
         if pvc_method not in ['suv','suvr']:
             raise IOError('Quant method choice not recognized')
-    ref_atlas = select_file('Please select atlas containing reference region(s)')
-    ref_template = select_file('Select the template space (e.g. MNI) of the atlas')
-    ref_labels = retrieve_input('Please list the label number(s) for your reference region(s), separated by spaces')
+    own_reference = yes_no('Are you provided your own native space reference regions? y/n ')
+    if not own_reference:
+        ref_atlas = select_file('Please select atlas containing reference region(s)')
+        ref_template = select_file('Select the template space (e.g. MNI) of the atlas')
+    else:
+        ref_atlas = retrieve_input('Please provide string label for reference region ')
+        ref_template = None
+    ref_labels = retrieve_input('Please list the label number(s) for your reference region(s), separated by spaces ')               
     msg = 'Please supply a label, like "InfCereb" (non unique labels will overwrite existing files): '
     ref_name = retrieve_input(msg)
 

@@ -20,7 +20,7 @@ launch_cmd += '--results-label-img %s  --results-label-template %s --results-lab
 
 # PVE
 pvc_method = 'GTM'
-fwhm = '4 4 4'
+fwhm = '5 5 5'
 pvc_atlas = '/opt/APPIAN/Atlas/MNI152/dka.mnc'
 pvc_template = '/opt/APPIAN/Atlas/MNI152/mni_icbm152_t1_tal_nlin_asym_09c.mnc'
 pvc_name = 'GTM'
