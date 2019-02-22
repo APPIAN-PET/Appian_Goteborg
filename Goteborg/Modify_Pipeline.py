@@ -1,6 +1,4 @@
-## ACTIVATE PYTHON ENVIRONMENT
-os.system('source deactivate')
-os.system('source /data/reckoner_forsklagr/py_envs/appiandev/bin/activate')
+#!/usr/bin/env python3.6
 
 import os
 import tkinter as tk
@@ -129,10 +127,10 @@ if 'PVC' in selection:
         pvc_method = retrieve_input('Choose a method from these choices: GTM, VC, idSURF ')
         if pvc_method not in ['GTM','VC','idSURF']:
             raise IOError('PVC choice not recognized')
-	pvc_atlas = select_file('Please select atlas to use for PVC')
-	pvc_template = select_file('Please select the template space (e.g.) MNI of the atlas')
-	msg = 'Please supply a label, like "GTM" (non unique labels will overwrite existing files): '
-	pvc_name = retrieve_input(msg)
+        pvc_atlas = select_file('Please select atlas to use for PVC')
+        pvc_template = select_file('Please select the template space (e.g.) MNI of the atlas')
+        msg = 'Please supply a label, like "GTM" (non unique labels will overwrite existing files): '
+        pvc_name = retrieve_input(msg)
 
 if 'Quantification' in selection:
     print('NOTE: This script will only give options for suv and suvr')
@@ -141,9 +139,9 @@ if 'Quantification' in selection:
     method = retrieve_input('Choose a method from these choices: suv, suvr ')
     if method not in ['suv','suvr']:
         print('Input not recognized. Please choose suv or suvr')
-	method = retrieve_input('Choose a method from these choices: suv, suvr ')
-	if pvc_method not in ['suv','suvr']:
-	    raise IOError('Quant method choice not recognized')
+        method = retrieve_input('Choose a method from these choices: suv, suvr ')
+        if pvc_method not in ['suv','suvr']:
+            raise IOError('Quant method choice not recognized')
     ref_atlas = select_file('Please select atlas containing reference region(s)')
     ref_template = select_file('Select the template space (e.g. MNI) of the atlas')
     ref_labels = retrieve_input('Please list the label number(s) for your reference region(s), separated by spaces')
@@ -155,15 +153,15 @@ if 'Appian' in selection:
     ansr = retrieve_input('Choose a version from these choices: stable, dev, other')
     if ansr not in ['stable','dev','other']:
         print('Input not recognized. Please choose stable, dev or other')
-	method = retrieve_input('Choose a method from these choices: suv, suvr ')
-	if method not in ['stable','dev','other']:
-	    raise IOError('Appian version choice not recognized')
-	if ansr == 'stable':
-	    appian = 'tffunck/appian:latest'
-	elif ansr == 'dev':
-	    appian = 'tffunck/appian:latest-dev'
-	else:
-	    appian = retrive_input('Please enter full address to appian version (e.g. tffunck/appian:latest' )
+        ansr = retrieve_input('Choose a method from these choices: suv, suvr ')
+        if ansr not in ['stable','dev','other']:
+            raise IOError('Appian version choice not recognized')
+        if ansr == 'stable':
+            appian = 'tffunck/appian:latest'
+        elif ansr == 'dev':
+            appian = 'tffunck/appian:latest-dev'
+        else:
+            appian = retrive_input('Please enter full address to appian version (e.g. tffunck/appian:latest' )
 
 if 'other' in selection:
     msg = 'Please enter additional Appian commands as you would enter into the command line'
